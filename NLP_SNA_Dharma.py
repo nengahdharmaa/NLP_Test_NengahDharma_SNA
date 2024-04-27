@@ -13,6 +13,8 @@ from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
 # Model classification 
 from sklearn.naive_bayes import MultinomialNB
+# Measure the prediction speed 
+import time
 # Saving the model
 import pickle
 
@@ -46,7 +48,12 @@ modelnb = mnb.fit(Xtrain,ytrain)
 ypred1 = modelnb.predict(Xtest)
 
 ## Evaluate the model 
+#timestep for measure speed in second 
+start_ts = time.time()
 #Accuracy Score on The training data
 print('Accuracy Score on the training data :', accuracy_score(ytrain,modelnb.predict(Xtrain)))
 #Accuracy Score on the test data
 print('Accuracy Score on the test data :',accuracy_score(ytest,modelnb.predict(Xtest)))
+end_ts = time.time()
+# Print the speed of the prediction
+print(f"Prediction speed [s]: {(end_ts-start_ts):.3f}")
