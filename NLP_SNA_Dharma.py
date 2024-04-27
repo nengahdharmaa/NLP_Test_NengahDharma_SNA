@@ -28,7 +28,6 @@ def stemming_df(review):
   review_bersih = [stem_df.stem(word) for word in review_bersih if not word in stopwords.words('english')]
   review_bersih = ' '.join(review_bersih)
   return review_bersih
-
 df['review'] = df['audience-reviews__review'].apply(stemming_df)
 
 ## Splitting Dataset 
@@ -42,7 +41,7 @@ vectorizer = TfidfVectorizer()
 Xtrain = vectorizer.fit_transform(Xtrain)
 Xtest = vectorizer.transform(Xtest)
 
-## Import the Naive Bayes model 
+## Implement the Naive Bayes model 
 mnb = MultinomialNB()
 modelnb = mnb.fit(Xtrain,ytrain)
 ypred1 = modelnb.predict(Xtest)
