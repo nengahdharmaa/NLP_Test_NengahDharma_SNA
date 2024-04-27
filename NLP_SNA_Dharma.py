@@ -1,44 +1,52 @@
-#Import the following libraries
+## Import Library 
 import pandas as pd
-import numpy as np 
-import matplotlib.pyplot as plt
+import numpy as np
 import re
-from textblob import TextBlob
-
-#Import the dataset
-df= pd.read_csv('Dune_movie_review.csv')
-#make an ID for the dataset
+import matplotlib.pyplot as plt
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
 import uuid
-id = uuid.uuid1()
-print(id.int)
-#Data preprocessing
-columns = ['reviewerID','reviewerName','reviewText','sentiment']
-review_properties = []
-for index,review in df.tail(300).iterrows() :
-  properties =[]
-  id = uuid.uuid1()
-  properties.append(id)
-  properties.append(review['audience-reviews__name'])
-  review_bersih = ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)"," ",review['audience-reviews__review']).split())
-  properties.append(review_bersih)
-  review_properties.append(properties)
-  analisis = TextBlob(review_bersih)
-  if analisis.sentiment.polarity >0.0:
-    properties.append("positif")
-  elif analisis.sentiment.polarity ==0.0:
-    properties.append("netral")
-  else:
-    properties.append("negatif")
-    # print(tweet_properties)
-dr = pd.DataFrame(data=review_properties,columns = columns)
+# Natural Language ToolKit Library
+import nltk
+from nltk.corpus import stopwords
+from nltk.stem.porter import PorterStemmer
+# Model classification 
+from sklearn.naive_bayes import MultinomialNB
+# Saving the model
+import pickle
 
-#print the result 
-bar = dr.groupby('sentiment').count()['reviewerID'].sort_values(ascending=False)
-print(bar)
-plt.figure(figsize=(3, 1))
-plt.bar(bar.index, bar)
-plt.xticks(rotation=55)
-plt.xlabel('sentiment')
-plt.ylabel('reviwerID')
-plt.show()
-                 
+nltk.download('stopwords')
+df = pd.read_csv('labeled_Movie_review_sentiment_dune.csv')
+
+## Stemming the data
+stem_df = PorterStemmer()
+def stemming_df(review):
+  review_bersih = (re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)"," ",review).lower()).split()
+  review_bersih = [stem_df.stem(word) for word in review_bersih if not word in stopwords.words('english')]
+  review_bersih = ' '.join(review_bersih)
+  return review_bersih
+
+df['review'] = df['audience-reviews__review'].apply(stemming_df)
+
+## Splitting Dataset 
+X = df['review'].values
+y = df['Sentiment'].values
+Xtrain,Xtest,ytrain,ytest = train_test_split(X,y,test_size=0.2,random_state=2)
+
+## Convert the text review to numerical values
+#Converting into numerical data
+vectorizer = TfidfVectorizer()
+Xtrain = vectorizer.fit_transform(Xtrain)
+Xtest = vectorizer.transform(Xtest)
+
+## Import the Naive Bayes model 
+mnb = MultinomialNB()
+modelnb = mnb.fit(Xtrain,ytrain)
+ypred1 = modelnb.predict(Xtest)
+
+## Evaluate the model 
+#Accuracy Score on The training data
+print('Accuracy Score on the training data :', accuracy_score(ytrain,modelnb.predict(Xtrain)))
+#Accuracy Score on the test data
+print('Accuracy Score on the test data :',accuracy_score(ytest,modelnb.predict(Xtest)))

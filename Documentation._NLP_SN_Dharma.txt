@@ -2,6 +2,7 @@ Workflow of Sentiment Analysis
 1. Collect Data from Verified Movie Review
     - Gather from rotten Tomatoes movie review 
     - Got 1020 rows data from web scraping 
+    - Manually labeling data to train the model
 2. Data Pre processing convert data to numerical data 
 3. Split data into training and test data to evaluate and measure accuracy 
 4. Apply on Model 
